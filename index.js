@@ -6,7 +6,6 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 require('dotenv').config();
 
-// Importar los modelos de Mongoose (aún necesarios aquí)
 const User = require('./models/User');
 const Account = require('./models/Account');
 const Transaction = require('./models/Transaction');
@@ -49,13 +48,9 @@ const swaggerOptions = {
             version: '1.0.0',
             description: 'Una API para la gestión de usuarios, cuentas y transacciones bancarias.'
         },
-        contact : {
-            name : 'Jairo Armando',
-            url : 'https://ni.idea.com'
-        },
         servers: [
             {
-                url: 'http://localhost:3000'
+                url: 'https://tallerrestful-production.up.railway.app'
             }
         ],
         components: {
