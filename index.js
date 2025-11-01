@@ -64,7 +64,7 @@ const swaggerOptions = {
         },
         security: [{ bearerAuth: [] }]
     },
-    apis: ['./routes/*.js'] // Ahora apunta a todos los archivos .js en la carpeta routes
+    apis: ['./routes/*.js'] 
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
