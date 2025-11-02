@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import { User, IUser } from '../models/User';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'clave_secreta';
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 // 🧩 Registrar usuario
 router.post('/register', async (req: Request, res: Response) => {
@@ -45,12 +45,12 @@ router.post('/login', async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Contraseña incorrecta.' });
     }
 
-    // Ahora TypeScript sabe que _id es ObjectId
     const token = jwt.sign(
       { userId: user._id.toString(), email: user.email },
-      JWT_SECRET,
+        process.env.JWT_SECRET as string,
       { expiresIn: '1h' }
     );
+
 
     res.json({ token });
   } catch (err: any) {

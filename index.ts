@@ -1,4 +1,3 @@
-// index.js
 import express from 'express';
 import mongoose from 'mongoose';
 import helmet from 'helmet';
@@ -7,16 +6,17 @@ import swaggerUi from 'swagger-ui-express';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import accountRoutes from './routes/accounts';
+import path from 'path';
 
 
 dotenv.config();
-
-
 const app = express();
 const PORT = process.env.PORT || 3000;
+const mongoUri = process.env.MONGO_URI;
 
 // Middleware para procesar JSON
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 // Middleware de Seguridad (Helmet)
 app.use(helmet());
@@ -76,13 +76,10 @@ app.get('/', (req, res) => {
   res.send('API RESTful Bancaria - Servidor en funcionamiento.');
 });
 
-// **********************************
-// Usar los routers modulares
-// **********************************
+
 app.use('/auth', authRoutes);
 app.use('/accounts', accountRoutes);
 
-const mongoUri = process.env.MONGO_URI;
 
 if (!mongoUri) {
   console.error('❌ Error: la variable MONGO_URI no está definida en el archivo .env');

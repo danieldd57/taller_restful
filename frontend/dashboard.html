@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel - Banco UPTC</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body onload="loadAccounts()">
+  <h1>Mis Cuentas 🏦</h1>
+  <button onclick="logout()">Cerrar sesión</button>
+
+  <div id="accounts">
+    <p>Cargando cuentas...</p>
+  </div>
+
+  <div id="create-account-section" style="display:none;">
+    <h2>Crear nueva cuenta</h2>
+    <input type="text" id="nombreCuenta" placeholder="Nombre de cuenta" />
+    <button onclick="createAccount()">Crear cuenta</button>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

@@ -5,7 +5,23 @@ import { Transaction } from '../models/Transaction';
 
 const router = express.Router();
 
-// 🏦 Crear nueva cuenta
+// Obtener todas las cuentas del usuario 
+router.get('/', verifyToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = (req.user as any)?.userId;
+
+    if (!userId) {
+      return res.status(403).json({ message: 'Token inválido o ausente.' });
+    }
+    const accounts = await Account.find({ propietario: userId }).select('-__v');
+
+    res.status(200).json(accounts);
+  } catch (err: any) {
+    res.status(500).json({ message: 'Error al obtener las cuentas del usuario.', error: err.message });
+  }
+});
+
+// Crear nueva cuenta
 router.post('/', verifyToken, async (req: AuthRequest, res: Response) => {
   try {
     const userId = (req.user as any)?.userId;
@@ -28,7 +44,7 @@ router.post('/', verifyToken, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// 💰 Realizar transacción (depósito o retiro)
+// Realizar transacción (depósito o retiro)
 router.post('/:accountId/transactions', verifyToken, async (req: AuthRequest, res: Response) => {
   try {
     const userId = (req.user as any)?.userId;
@@ -70,7 +86,7 @@ router.post('/:accountId/transactions', verifyToken, async (req: AuthRequest, re
   }
 });
 
-// 📜 Obtener historial de transacciones
+// Obtener historial de transacciones
 router.get('/:accountId/transactions', verifyToken, async (req: AuthRequest, res: Response) => {
   try {
     const userId = (req.user as any)?.userId;
@@ -96,7 +112,7 @@ router.get('/:accountId/transactions', verifyToken, async (req: AuthRequest, res
   }
 });
 
-// ❌ Eliminar cuenta
+// Eliminar cuenta
 router.delete('/:accountId', verifyToken, async (req: AuthRequest, res: Response) => {
   try {
     const userId = (req.user as any)?.userId;

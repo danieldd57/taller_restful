@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transacciones - Banco UPTC</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body onload="loadTransactions()">
+  <h1>Transacciones 💸</h1>
+  <button onclick="window.location.href='dashboard.html'">Volver a Cuentas</button>
+  <button onclick="logout()">Cerrar sesión</button>
+  
+  <h2 id="accountName"></h2>
+
+  <div id="transactions">
+    <p>Cargando transacciones...</p>
+  </div>
+
+  <h2>Agregar transacción</h2>
+  <select id="tipo">
+    <option value="Depósito">Depósito</option>
+    <option value="Retiro">Retiro</option>
+  </select>
+  <input type="number" id="monto" placeholder="Monto" />
+  <input type="text" id="descripcion" placeholder="Descripción" />
+  <button onclick="addTransaction()">Agregar</button>
+
+  <script src="main.js"></script>
+</body>
+</html>

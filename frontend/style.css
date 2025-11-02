@@ -1,0 +1,44 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f4f8;
+  text-align: center;
+  padding: 20px;
+}
+
+h1, h2 {
+  color: #004aad;
+}
+
+.form-container {
+  background: white;
+  margin: 20px auto;
+  padding: 20px;
+  width: 300px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+input, select {
+  display: block;
+  width: 90%;
+  margin: 10px auto;
+  padding: 8px;
+}
+
+button {
+  background: #004aad;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.account-card, .transaction-card {
+  background: white;
+  margin: 10px auto;
+  padding: 15px;
+  width: 250px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
