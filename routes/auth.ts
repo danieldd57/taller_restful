@@ -7,12 +7,11 @@ import { User, IUser } from '../models/User';
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
-// 🧩 Registrar usuario
+// Registrar usuario
 router.post('/register', async (req: Request, res: Response) => {
   try {
     const { nombre, email, password } = req.body;
 
-    // Verificar si el correo ya está registrado
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'El correo ya está registrado.' });
@@ -28,12 +27,10 @@ router.post('/register', async (req: Request, res: Response) => {
   }
 });
 
-// 🔑 Login
+// Login
 router.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-
-    // Tipamos explícitamente el usuario con su ObjectId
     const user = await User.findOne({ email }) as (mongoose.Document<unknown, any, IUser> & IUser & { _id: mongoose.Types.ObjectId });
 
     if (!user) {
@@ -50,7 +47,6 @@ router.post('/login', async (req: Request, res: Response) => {
         process.env.JWT_SECRET as string,
       { expiresIn: '1h' }
     );
-
 
     res.json({ token });
   } catch (err: any) {

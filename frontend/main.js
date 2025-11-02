@@ -43,7 +43,6 @@ async function register() {
 async function loadAccounts() {
     const token = localStorage.getItem("token");
 
-    // 1. Verificar si hay token. Si no, redirigir al login. (Ya estaba correcta)
     if (!token) {
         window.location.href = "index.html";
         return;
