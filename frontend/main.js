@@ -50,7 +50,7 @@ async function loadAccounts() {
 
     const container = document.getElementById("accounts");
     const createSection = document.getElementById("create-account-section");
-
+    
     container.innerHTML = `<p>Cargando cuentas...</p>`; 
     createSection.style.display = "none";
 
@@ -73,22 +73,20 @@ async function loadAccounts() {
                 container.innerHTML = `<p style="color:red;">Error del servidor: ${res.status}. El token puede ser inválido o la API no está funcionando.</p>`;
                 return;
             }
-            
             container.innerHTML = `<p style="color:red;">Error al cargar cuentas: ${errorData.message || res.statusText}</p>`;
             return;
         }
 
     } catch (error) {
         container.innerHTML = `<p style="color:red;">Error de conexión: Asegúrate de que el servidor (${API_URL}) esté activo.</p>`;
-        console.error('Error de conexión:', error);
         return;
     }
 
-    const data = await res.json(); 
+    const data = await res.json();
+    
     container.innerHTML = "";
-
+    
     if (data.length > 0) {
-        // Si hay cuentas, mostrarlas
         data.forEach(acc => {
             const div = document.createElement("div");
             div.className = "account-card";
@@ -100,10 +98,10 @@ async function loadAccounts() {
             container.appendChild(div);
         });
     } else {
-        // Si no hay cuentas, mostrar el mensaje y la sección de crear
         container.innerHTML = `<p>No tienes cuentas. Crea una nueva para empezar.</p>`;
-        createSection.style.display = "block";
     }
+    
+    createSection.style.display = "block"; 
 }
 // Crear nueva cuenta
 async function createAccount() {
