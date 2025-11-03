@@ -2,44 +2,45 @@ const API_URL = "http://localhost:3000";
 
 // ---------- LOGIN ----------
 async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+    const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+    });
 
-  const data = await res.json();
-  if (res.ok) {
-    localStorage.setItem("token", data.token);
-    window.location.href = "dashboard.html";
-  } else {
-    alert(data.message);
-  }
+    const data = await res.json();
+    if (res.ok) {
+        localStorage.setItem("token", data.token);
+        window.location.href = "dashboard.html";
+    } else {
+        alert(data.message);
+    }
 }
 
 // ---------- REGISTRO ----------
 async function register() {
-  const nombre = document.getElementById("nombre").value;
-  const email = document.getElementById("emailReg").value;
-  const password = document.getElementById("passwordReg").value;
+    const nombre = document.getElementById("nombre").value;
+    const email = document.getElementById("emailReg").value;
+    const password = document.getElementById("passwordReg").value;
 
-  const res = await fetch(`${API_URL}/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre, email, password }),
-  });
+    const res = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, email, password }),
+    });
 
-  const data = await res.json();
-  if (res.ok) {
-    alert("Usuario registrado. Ahora puedes iniciar sesión.");
-  } else {
-    alert(data.message);
-  }
+    const data = await res.json();
+    if (res.ok) {
+        alert("Usuario registrado. Ahora puedes iniciar sesión.");
+    } else {
+        alert(data.message);
+    }
 }
 
+// ---------- DASHBOARD: Cargar Cuentas y Lógica Principal ----------
 async function loadAccounts() {
     const token = localStorage.getItem("token");
 
@@ -94,6 +95,9 @@ async function loadAccounts() {
                 <h3>${acc.nombre}</h3>
                 <p>Saldo: $${acc.saldo}</p>
                 <button onclick="selectAccount('${acc._id}', '${acc.nombre}')">Ver transacciones</button>
+                <button class="delete-button" onclick="deleteAccount('${acc._id}', '${acc.nombre}', ${acc.saldo})">
+                    Eliminar cuenta
+                </button>
             `;
             container.appendChild(div);
         });
@@ -101,140 +105,166 @@ async function loadAccounts() {
         container.innerHTML = `<p>No tienes cuentas. Crea una nueva para empezar.</p>`;
     }
     
+    // Muestra la sección de crear cuenta siempre que la carga sea exitosa
     createSection.style.display = "block"; 
 }
+
 // Crear nueva cuenta
 async function createAccount() {
-  const token = localStorage.getItem("token");
-  const nombre = document.getElementById("nombreCuenta").value;
+    const token = localStorage.getItem("token");
+    const nombre = document.getElementById("nombreCuenta").value;
 
-  if (!nombre) {
-      alert("Por favor, ingresa un nombre para la cuenta.");
-      return;
-  }
+    if (!nombre) {
+        alert("Por favor, ingresa un nombre para la cuenta.");
+        return;
+    }
 
-  const res = await fetch(`${API_URL}/accounts`, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ nombre }),
-  });
+    const res = await fetch(`${API_URL}/accounts`, {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ nombre }),
+    });
 
-  const data = await res.json();
-  if (res.ok) {
-    alert("Cuenta creada con éxito");
-    document.getElementById("nombreCuenta").value = ""; // Limpiar input
-    loadAccounts();
-  } else {
-    alert(data.message);
-  }
+    const data = await res.json();
+    if (res.ok) {
+        alert("Cuenta creada con éxito");
+        document.getElementById("nombreCuenta").value = "";
+        loadAccounts();
+    } else {
+        alert(data.message);
+    }
 }
 
 // Seleccionar cuenta y pasar a transacciones
 function selectAccount(accountId, accountName) {
-  localStorage.setItem("selectedAccount", accountId);
-  localStorage.setItem("selectedAccountName", accountName);
-  window.location.href = "transactions.html";
+    localStorage.setItem("selectedAccount", accountId);
+    localStorage.setItem("selectedAccountName", accountName);
+    window.location.href = "transactions.html";
+}
+
+// ---------- ELIMINAR CUENTA ----------
+async function deleteAccount(accountId, accountName, currentBalance) {
+    const token = localStorage.getItem("token");
+
+    if (currentBalance > 0) {
+        alert(`No puedes eliminar la cuenta "${accountName}". El saldo debe ser $0.`);
+        return;
+    }
+
+    if (!confirm(`¿Estás seguro de que quieres eliminar la cuenta "${accountName}"? Esta acción es irreversible.`)) {
+        return;
+    }
+
+    const res = await fetch(`${API_URL}/accounts/${accountId}`, {
+        method: "DELETE",
+        headers: { 
+            Authorization: `Bearer ${token}`,
+        },
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+        alert("Cuenta eliminada con éxito.");
+        loadAccounts();
+    } else {
+        alert(data.message || "Error al intentar eliminar la cuenta.");
+    }
 }
 
 // ---------- TRANSACCIONES ----------
 async function loadTransactions() {
-  const token = localStorage.getItem("token");
-  const accountId = localStorage.getItem("selectedAccount");
-  const accountName = localStorage.getItem("selectedAccountName");
+    const token = localStorage.getItem("token");
+    const accountId = localStorage.getItem("selectedAccount");
+    const accountName = localStorage.getItem("selectedAccountName");
 
-  // Redirigir si no hay cuenta seleccionada o token
-  if (!token) {
-    window.location.href = "index.html";
-    return;
-  }
-  if (!accountId) {
-    window.location.href = "dashboard.html";
-    return;
-  }
+    if (!token) {
+        window.location.href = "index.html";
+        return;
+    }
+    if (!accountId) {
+        window.location.href = "dashboard.html";
+        return;
+    }
 
-  document.getElementById("accountName").innerText = `Cuenta: ${accountName}`;
+    document.getElementById("accountName").innerText = `Cuenta: ${accountName}`;
 
-  const res = await fetch(`${API_URL}/accounts/${accountId}/transactions`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  const data = await res.json();
-  const container = document.getElementById("transactions");
-  container.innerHTML = "";
-
-  if (res.ok && data.length > 0) {
-    data.forEach(tr => {
-      const div = document.createElement("div");
-      div.className = "transaction-card";
-      // Formatear la fecha
-      const formattedDate = new Date(tr.fecha).toLocaleString('es-ES', { 
-          year: 'numeric', month: 'numeric', day: 'numeric', 
-          hour: '2-digit', minute: '2-digit' 
-      });
-      div.innerHTML = `
-        <p><strong>${tr.tipo}</strong>: $${tr.monto} - ${tr.descripcion} - <small>${formattedDate}</small></p>
-      `;
-      container.appendChild(div);
+    const res = await fetch(`${API_URL}/accounts/${accountId}/transactions`, {
+        headers: { Authorization: `Bearer ${token}` },
     });
-  } else {
-    container.innerHTML = `<p>No hay transacciones aún.</p>`;
-  }
+
+    const data = await res.json();
+    const container = document.getElementById("transactions");
+    container.innerHTML = "";
+
+    if (res.ok && data.length > 0) {
+        data.forEach(tr => {
+            const div = document.createElement("div");
+            div.className = "transaction-card";
+            const formattedDate = new Date(tr.fecha).toLocaleString('es-ES', { 
+                year: 'numeric', month: 'numeric', day: 'numeric', 
+                hour: '2-digit', minute: '2-digit' 
+            });
+            div.innerHTML = `
+                <p><strong>${tr.tipo}</strong>: $${tr.monto} - ${tr.descripcion} - <small>${formattedDate}</small></p>
+            `;
+            container.appendChild(div);
+        });
+    } else {
+        container.innerHTML = `<p>No hay transacciones aún.</p>`;
+    }
 }
 
 // Agregar transacción
 async function addTransaction() {
-  const token = localStorage.getItem("token");
-  const accountId = localStorage.getItem("selectedAccount");
-  const tipo = document.getElementById("tipo").value;
-  const monto = parseFloat(document.getElementById("monto").value);
-  const descripcion = document.getElementById("descripcion").value;
+    const token = localStorage.getItem("token");
+    const accountId = localStorage.getItem("selectedAccount");
+    const tipo = document.getElementById("tipo").value;
+    const monto = parseFloat(document.getElementById("monto").value);
+    const descripcion = document.getElementById("descripcion").value;
 
-  if (isNaN(monto) || monto <= 0 || !descripcion) {
-      alert("Por favor, ingresa un monto válido y una descripción.");
-      return;
-  }
+    if (isNaN(monto) || monto <= 0 || !descripcion) {
+        alert("Por favor, ingresa un monto válido y una descripción.");
+        return;
+    }
 
-  const res = await fetch(`${API_URL}/accounts/${accountId}/transactions`, {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ tipo, monto, descripcion }),
-  });
+    const res = await fetch(`${API_URL}/accounts/${accountId}/transactions`, {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tipo, monto, descripcion }),
+    });
 
-  const data = await res.json();
-  if (res.ok) {
-    alert("Transacción agregada");
-    document.getElementById("monto").value = "";
-    document.getElementById("descripcion").value = "";
-    loadTransactions();
-  } else {
-    alert(data.message);
-  }
+    const data = await res.json();
+    if (res.ok) {
+        alert("Transacción agregada");
+        document.getElementById("monto").value = "";
+        document.getElementById("descripcion").value = "";
+        loadTransactions();
+    } else {
+        alert(data.message);
+    }
 }
 
 // ---------- LOGOUT ----------
 function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("selectedAccount");
-  localStorage.removeItem("selectedAccountName");
-  window.location.href = "index.html";
+    localStorage.removeItem("token");
+    localStorage.removeItem("selectedAccount");
+    localStorage.removeItem("selectedAccountName");
+    window.location.href = "index.html";
 }
 
 // ---------- INIT - Lógica de enrutamiento inicial ----------
-// Se llama a esta función al final para ejecutar la lógica inicial
 function initApp() {
     const path = window.location.pathname;
     
-    // Proteger las rutas que requieren autenticación
     if (path.includes("dashboard.html") || path.includes("transactions.html")) {
         const token = localStorage.getItem("token");
         if (!token) {
-            // Si no hay token, redirigir al login y detener la ejecución
             window.location.href = "index.html";
             return;
         }
@@ -245,7 +275,6 @@ function initApp() {
     } else if (path.includes("transactions.html")) {
         loadTransactions();
     } else if (path.includes("index.html") && localStorage.getItem("token")) {
-        // Si ya hay token y está en el login, redirigir al dashboard
         window.location.href = "dashboard.html";
     }
 }
